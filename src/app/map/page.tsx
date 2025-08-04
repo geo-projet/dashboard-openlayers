@@ -5,6 +5,8 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import OLMap from '@/components/Map';
 import LayerSwitcher, { basemaps } from '@/components/LayerSwitcher';
+import VectorLayerAttributes from '@/components/VectorLayerAttributes';
+import GeoJSON from 'ol/format/GeoJSON';
 
 export default function MapPage() {
   const { data: session, status } = useSession();
@@ -12,6 +14,9 @@ export default function MapPage() {
   const [geojsonData, setGeojsonData] = useState(null);
   const [selectedBasemap, setSelectedBasemap] = useState(basemaps[0].id);
   const [thematicLayerVisible, setThematicLayerVisible] = useState(true);
+  const [attributesOpen, setAttributesOpen] = useState(false);
+  const [selectedFeatureIndex, setSelectedFeatureIndex] = useState<number | null>(null);
+  const [initialExtent, setInitialExtent] = useState<[number, number, number, number] | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -33,6 +38,34 @@ export default function MapPage() {
       fetchData();
     }
   }, [status, router]);
+
+  // Calculer l'étendue initiale de la carte après chargement des données
+  useEffect(() => {
+    if (geojsonData && geojsonData.features.length > 0) {
+      const format = new GeoJSON();
+      const features = format.readFeatures(geojsonData, { featureProjection: 'EPSG:3857' });
+      let globalExtent: [number, number, number, number] | null = null;
+      features.forEach((f: any) => {
+        const geom = f.getGeometry?.();
+        if (geom) {
+          const ext = geom.getExtent();
+          if (!globalExtent) {
+            globalExtent = ext;
+          } else {
+            globalExtent = [
+              Math.min(globalExtent[0], ext[0]),
+              Math.min(globalExtent[1], ext[1]),
+              Math.max(globalExtent[2], ext[2]),
+              Math.max(globalExtent[3], ext[3]),
+            ];
+          }
+        }
+      });
+      if (globalExtent) {
+        setInitialExtent(globalExtent);
+      }
+    }
+  }, [geojsonData]);
 
   if (status === 'loading') {
     return <div className="flex justify-center items-center min-h-screen"><p>Chargement de la session...</p></div>;
@@ -70,7 +103,25 @@ export default function MapPage() {
               geojsonData={geojsonData} 
               basemapId={selectedBasemap} 
               thematicLayerVisible={thematicLayerVisible} 
+              selectedFeatureIndex={selectedFeatureIndex}
+              initialExtent={initialExtent}
             />
+            {/* Bouton pour ouvrir/fermer la composante attributs */}
+            <div className="absolute bottom-0 left-0 w-full z-20 flex flex-col items-end">
+              <button
+                className="m-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
+                onClick={() => setAttributesOpen((open) => !open)}
+              >
+                {attributesOpen ? 'Fermer les attributs' : 'Afficher les attributs'}
+              </button>
+              {attributesOpen && (
+                <VectorLayerAttributes 
+                  geojsonData={geojsonData} 
+                  onSelectFeature={(_, idx) => setSelectedFeatureIndex(selectedFeatureIndex === idx ? null : idx)}
+                  selectedIndex={selectedFeatureIndex}
+                />
+              )}
+            </div>
           </>
         ) : (
           <div className="flex justify-center items-center h-full">

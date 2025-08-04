@@ -14,6 +14,8 @@ interface MapProps {
   geojsonData: GeoJSON.FeatureCollection | null;
   basemapId: string;
   thematicLayerVisible: boolean;
+  selectedFeatureIndex?: number | null;
+  initialExtent?: [number, number, number, number] | null;
 }
 
 // Définition des couches de fond de carte
@@ -45,7 +47,7 @@ const basemapLayers = {
   }),
 };
 
-export default function OLMap({ geojsonData, basemapId, thematicLayerVisible }: MapProps) {
+export default function OLMap({ geojsonData, basemapId, thematicLayerVisible, selectedFeatureIndex, initialExtent }: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<Map | null>(null);
 
@@ -123,6 +125,39 @@ export default function OLMap({ geojsonData, basemapId, thematicLayerVisible }: 
       thematicLayer.setVisible(thematicLayerVisible);
     }
   }, [thematicLayerVisible]);
+
+  // Gestion du zoom sur la feature sélectionnée ou retour à la vue initiale
+  useEffect(() => {
+    if (!mapInstance.current || !geojsonData) return;
+    const map = mapInstance.current;
+    if (selectedFeatureIndex == null && initialExtent) {
+      map.getView().fit(initialExtent, {
+        padding: [50, 50, 50, 50],
+        duration: 800,
+      });
+      return;
+    }
+    if (selectedFeatureIndex != null) {
+      const features = geojsonData.features;
+      const selectedFeature = features[selectedFeatureIndex];
+      if (!selectedFeature || !selectedFeature.geometry) return;
+      try {
+        const format = new GeoJSON();
+        const olFeature = format.readFeature(selectedFeature, { featureProjection: 'EPSG:3857' });
+        // @ts-expect-error OpenLayers Feature type
+        const geometry = olFeature.getGeometry();
+        if (geometry) {
+          map.getView().fit(geometry.getExtent(), {
+            padding: [50, 50, 50, 50],
+            duration: 800,
+            maxZoom: 18,
+          });
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [selectedFeatureIndex, geojsonData, initialExtent]);
 
   return <div ref={mapRef} style={{ width: '100%', height: '100%' }} className="relative" />;
 }
