@@ -49,6 +49,20 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 - Edit `src/app/map/page.tsx` and `src/components/Map.tsx` to customize map logic.
 - Edit `src/components/VectorLayerAttributes.tsx` to change the attribute table behavior.
 
+## Environment Configuration
+
+You must create a `.env.local` file at the root of the project with your geospatial database connection parameters. Example:
+
+```env
+DB_HOST=your_database_host
+DB_PORT=your_database_port
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_NAME=your_database_name
+```
+
+Refer to your database provider's documentation for the correct values.
+
 ## Deployment
 
 To deploy, follow the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) or use [Vercel](https://vercel.com/).
