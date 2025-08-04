@@ -19,7 +19,7 @@ const VectorLayerAttributes: React.FC<VectorLayerAttributesProps> = ({ geojsonDa
         <thead>
           <tr>
             {Object.keys(geojsonData.features[0].properties || {}).map((key) => (
-              <th key={key} className="px-2 py-1 border-b font-medium text-left">{key}</th>
+              <th key={key} className="px-2 py-1 border-b font-bold text-left">{key}</th>
             ))}
           </tr>
         </thead>
