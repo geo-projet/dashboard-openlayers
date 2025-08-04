@@ -77,14 +77,14 @@ export default function MapPage() {
 
   return (
     <main className="h-screen flex flex-col">
-      <header className="flex-shrink-0 flex items-center justify-between p-4 bg-white border-b border-gray-200 z-10">
+      <header className="flex-shrink-0 flex items-center justify-between p-2 bg-white border-b border-gray-200 z-10" style={{ minHeight: '48px', height: '48px' }}>
         <div>
-          <h1 className="text-xl font-bold">Votre Carte Personnalisée</h1>
-          <p className="text-sm text-gray-500">Connecté en tant que {session.user?.name}</p>
+          <h1 className="text-lg font-bold">Votre Carte Personnalisée</h1>
+          <p className="text-xs text-gray-500">Connecté en tant que {session.user?.name}</p>
         </div>
         <button
           onClick={() => signOut({ callbackUrl: '/' })}
-          className="px-4 py-2 font-semibold text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          className="px-2 py-1 text-xs font-semibold text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
         >
           Déconnexion
         </button>
