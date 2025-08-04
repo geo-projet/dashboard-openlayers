@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import OLMap from '@/components/Map';
 import LayerSwitcher, { basemaps } from '@/components/LayerSwitcher';
 import VectorLayerAttributes from '@/components/VectorLayerAttributes';
+import Panel from '@/components/Panel';
 import GeoJSON from 'ol/format/GeoJSON';
 
 export default function MapPage() {
@@ -17,6 +18,7 @@ export default function MapPage() {
   const [attributesOpen, setAttributesOpen] = useState(false);
   const [selectedFeatureIndex, setSelectedFeatureIndex] = useState<number | null>(null);
   const [initialExtent, setInitialExtent] = useState<[number, number, number, number] | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -91,8 +93,13 @@ export default function MapPage() {
       </header>
 
       <div className="flex-grow relative">
+        
         {geojsonData ? (
           <>
+            <Panel 
+              isOpen={isPanelOpen} 
+              togglePanel={() => setIsPanelOpen(!isPanelOpen)} 
+            />
             <LayerSwitcher 
               selectedBasemap={selectedBasemap} 
               onBasemapChange={setSelectedBasemap} 
