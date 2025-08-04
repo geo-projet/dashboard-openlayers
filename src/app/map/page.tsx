@@ -107,7 +107,7 @@ export default function MapPage() {
               initialExtent={initialExtent}
             />
             {/* Bouton pour ouvrir/fermer la composante attributs */}
-            <div className="absolute bottom-0 left-0 w-full z-20 flex flex-col items-end">
+            <div className="absolute bottom-5 left-0 w-full z-20 flex flex-col items-end">
               <button
                 className="m-2 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
                 onClick={() => setAttributesOpen((open) => !open)}
